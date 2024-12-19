@@ -1,0 +1,100 @@
+@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/scyfin-theme.css');
+@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/disable-static-drawer.css');
+@import url('https://cdn.jsdelivr.net/gh/loof2736/scyfin@latest/CSS/theme-snow.css');
+
+/* Custom Google Font with more variety */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700&display=swap');
+
+/* Root Variables for Custom Color Scheme */
+:root {
+    --custom-primary-color: #3498db;
+    --custom-secondary-color: #2ecc71;
+    --custom-accent-color: #e74c3c;
+    --custom-background-dark: #1a1a2e;
+    --custom-background-light: #16213e;
+}
+
+/* Playlist Grid View Modifications - Enhanced Specificity */
+/* Ensure grid view for playlists */
+.itemAction-playlistView,
+body .itemAction-playlistView,
+.page .itemAction-playlistView {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+    gap: 25px !important;
+    padding: 25px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+}
+
+/* Target individual playlist items with increased specificity */
+.itemAction-playlistView .itemAction,
+body .itemAction-playlistView .itemAction,
+.page .itemAction-playlistView .itemAction {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+    max-width: 250px !important;
+    background: rgba(0,0,0,0.2) !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+}
+
+/* Hover effect for playlist items */
+.itemAction-playlistView .itemAction:hover,
+body .itemAction-playlistView .itemAction:hover,
+.page .itemAction-playlistView .itemAction:hover {
+    transform: scale(1.05) !important;
+    z-index: 10 !important;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.5) !important;
+}
+
+/* Ensure images are consistent */
+.itemAction-playlistView .itemAction .cardImage,
+body .itemAction-playlistView .itemAction .cardImage,
+.page .itemAction-playlistView .itemAction .cardImage {
+    width: 100% !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+}
+
+/* Playlist item text styling */
+.itemAction-playlistView .itemAction .cardText,
+body .itemAction-playlistView .itemAction .cardText,
+.page .itemAction-playlistView .itemAction .cardText {
+    margin-top: 10px !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    padding: 10px !important;
+    width: 100% !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .itemAction-playlistView,
+    body .itemAction-playlistView,
+    .page .itemAction-playlistView {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .itemAction-playlistView,
+    body .itemAction-playlistView,
+    .page .itemAction-playlistView {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 15px !important;
+    }
+}
+
+/* Rest of the existing styles remain unchanged */
+/* ... (previous styles from the original file) ... */

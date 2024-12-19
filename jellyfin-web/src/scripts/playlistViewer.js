@@ -1,0 +1,80 @@
+import { getPlaylistsApi } from '@jellyfin/sdk/lib/utils/api/playlists-api';
+
+import ServerConnections from 'components/ServerConnections';
+import listView from 'components/listview/listview';
+import cardBuilder from 'components/cardbuilder/cardBuilder';
+import { toApi } from 'utils/jellyfin-apiclient/compat';
+
+function getFetchPlaylistItemsFn(apiClient, itemId) {
+    return function () {
+        const query = {
+            Fields: 'PrimaryImageAspectRatio',
+            EnableImageTypes: 'Primary,Backdrop,Banner,Thumb',
+            UserId: apiClient.getCurrentUserId()
+        };
+        return apiClient.getJSON(apiClient.getUrl(`Playlists/${itemId}/Items`, query));
+    };
+}
+
+function getItemsHtmlFn(playlistId, isEditable = false) {
+    return function (items) {
+        return cardBuilder.getCardsHtml({
+            items,
+            shape: 'autoOverflow',
+            showTitle: true,
+            showParentTitle: true,
+            overlayPlayButton: true,
+            action: 'playallfromhere',
+            playlistId: playlistId,
+            dragHandle: isEditable
+        });
+    };
+}
+
+async function init(page, item) {
+    const apiClient = ServerConnections.getApiClient(item.ServerId);
+    const api = toApi(apiClient);
+
+    let isEditable = false;
+    const { data } = await getPlaylistsApi(api)
+        .getPlaylistUser({
+            playlistId: item.Id,
+            userId: apiClient.getCurrentUserId()
+        })
+        .catch(err => {
+            // If a user doesn't have access, then the request will 404 and throw
+            console.info('[PlaylistViewer] Failed to fetch playlist permissions', err);
+            return { data: {} };
+        });
+    isEditable = !!data.CanEdit;
+
+    const elem = page.querySelector('#childrenContent .itemsContainer');
+    elem.classList.remove('vertical-list');
+    elem.classList.add('vertical-wrap');
+    elem.enableDragReordering(isEditable);
+    elem.fetchData = getFetchPlaylistItemsFn(apiClient, item.Id);
+    elem.getItemsHtml = getItemsHtmlFn(item.Id, isEditable);
+}
+
+function refresh(page) {
+    page.querySelector('#childrenContent').classList.add('verticalSection-extrabottompadding');
+    page.querySelector('#childrenContent .itemsContainer').refreshItems();
+}
+
+function render(page, item) {
+    if (!page.playlistInit) {
+        page.playlistInit = true;
+        init(page, item)
+            .finally(() => {
+                refresh(page);
+            });
+    } else {
+        refresh(page);
+    }
+}
+
+const PlaylistViewer = {
+    render
+};
+
+export default PlaylistViewer;
