@@ -13,14 +13,17 @@ ENV NVIDIA_DRIVER_CAPABILITIES="computevideoutility"
 ENV JELLYFIN_WEB_DIR="/app/jellyfin-web/dist"
 
 RUN \
-  echo "**** install jellyfin dependencies *****" && \
+  echo "**** install dependencies *****" && \
   apt-get update && \
   apt-get install -y --no-install-recommends \
     at \
     ca-certificates \
     curl \
     gnupg \
-    nodejs=20.* \
+    software-properties-common && \
+  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+  apt-get install -y --no-install-recommends \
+    nodejs \
     npm \
     mesa-va-drivers \
     xmlstarlet && \
