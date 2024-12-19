@@ -20,7 +20,7 @@ RUN \
     ca-certificates \
     curl \
     gnupg \
-    nodejs \
+    nodejs=20.* \
     npm \
     mesa-va-drivers \
     xmlstarlet && \
@@ -45,6 +45,7 @@ COPY jellyfin-web/ /app/jellyfin-web/
 WORKDIR /app/jellyfin-web
 RUN \
   echo "**** build custom frontend ****" && \
+  npm install -g npm@9.6.4 && \
   npm ci && \
   npm run build:production && \
   mkdir -p /app/jellyfin-web/dist
