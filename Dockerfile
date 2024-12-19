@@ -20,7 +20,8 @@ RUN \
     ca-certificates \
     curl \
     gnupg \
-    software-properties-common && \
+    systemd \
+    systemd-sysusers && \
   curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
   apt-get install -y --no-install-recommends \
     nodejs \
