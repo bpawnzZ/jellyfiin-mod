@@ -1,40 +1,35 @@
-FROM ghcr.io/linuxserver/baseimage-ubuntu:noble
+FROM ubuntu:noble
 
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG JELLYFIN_RELEASE
-LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="thelamer"
+LABEL build_version="Custom Jellyfin version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="custom"
 
 # environment settings
 ARG DEBIAN_FRONTEND="noninteractive"
-ENV NVIDIA_DRIVER_CAPABILITIES="computevideoutility"
 ENV JELLYFIN_WEB_DIR="/app/jellyfin-web/dist"
 
+# Install dependencies in a single layer to reduce network calls
 RUN \
-  echo "**** install dependencies *****" && \
+  echo "**** install base dependencies *****" && \
   apt-get update && \
-  apt-get install -y --no-install-recommends \
-    at \
+  apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    software-properties-common && \
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-  apt-get install -y --no-install-recommends \
-    nodejs \
-    npm \
-    mesa-va-drivers \
-    xmlstarlet && \
-  curl -s https://repo.jellyfin.org/ubuntu/jellyfin_team.gpg.key | gpg --dearmor | tee /usr/share/keyrings/jellyfin.gpg >/dev/null && \
-  echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/jellyfin.gpg] https://repo.jellyfin.org/ubuntu noble main' > /etc/apt/sources.list.d/jellyfin.list && \
-  if [ -z ${JELLYFIN_RELEASE+x} ]; then \
-    JELLYFIN_RELEASE=$(curl -sX GET https://repo.jellyfin.org/ubuntu/dists/noble/main/binary-amd64/Packages |grep -A 7 -m 1 'Package: jellyfin-server' | awk -F ': ' '/Version/{print $2;exit}'); \
-  fi && \
+    wget && \
+  echo "**** install nodejs *****" && \
+  mkdir -p /etc/apt/keyrings && \
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+  echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
   apt-get update && \
-  apt-get install -y --no-install-recommends \
-    jellyfin=${JELLYFIN_RELEASE} && \
+  apt-get install -y nodejs npm && \
+  echo "**** install jellyfin *****" && \
+  wget -O - https://repo.jellyfin.org/jellyfin_team.gpg | gpg --dearmor | tee /usr/share/keyrings/jellyfin.gpg && \
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/jellyfin.gpg] https://repo.jellyfin.org/ubuntu noble main" | tee /etc/apt/sources.list.d/jellyfin.list && \
+  apt-get update && \
+  apt-get install -y jellyfin && \
   echo "**** cleanup ****" && \
   rm -rf \
     /tmp/* \
@@ -53,9 +48,11 @@ RUN \
   npm run build:production && \
   mkdir -p /app/jellyfin-web/dist
 
-# add local files
-COPY root/ /
-
-# ports and volumes
+# Expose ports
 EXPOSE 8096 8920
+
+# Set volume
 VOLUME /config
+
+# Default command
+CMD ["/usr/bin/jellyfin", "-d", "/config"]
