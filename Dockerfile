@@ -9,13 +9,13 @@ LABEL maintainer="custom"
 # environment settings
 ARG DEBIAN_FRONTEND="noninteractive"
 ENV JELLYFIN_WEB_DIR="/app/jellyfin-web/dist"
-
-# Set DNS to Google's public DNS
-RUN echo "nameserver 8.8.8.8" | tee /etc/resolv.conf > /dev/null && \
-    echo "nameserver 8.8.4.4" | tee -a /etc/resolv.conf > /dev/null
+ENV DNS1=8.8.8.8
+ENV DNS2=8.8.4.4
 
 # Install dependencies in a single layer to reduce network calls
 RUN \
+  echo "nameserver $DNS1" > /etc/resolv.conf && \
+  echo "nameserver $DNS2" >> /etc/resolv.conf && \
   apt-get clean && \
   apt-get update && \
   apt-get install -y \
